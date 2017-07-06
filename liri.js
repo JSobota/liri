@@ -1,13 +1,12 @@
-var fs = require("fs");                         //NPM package for reading and writing files
+var fs = require("fs");                         
 
-var keys = require("./apiKeys.js");                //Twitter keys and access tokens
-var Twitter = require("twitter");               //NPM package for twitter
-var client = new Twitter(keys.twitterKeys);     //New instance of a twitter client
+var keys = require("./apiKeys.js");                
+var Twitter = require("twitter");               
+var client = new Twitter(keys.twitterKeys);     
 
-var request = require("request");               //NPM package for making ajax-like calls
+var request = require("request");               
 
-var spotify = require("spotify");               //NPM package for spotify
-
+var spotify = require("spotify");               
 var userCommand = process.argv[2];
 var artName = process.argv[3];
 
@@ -39,14 +38,10 @@ function doNext(uC, aN){
 function fetchTwitter(){
     var tweetsLength;
 
-    //From twitter's NPM documentation, grab the most recent tweets
     var params = {screen_name: 'MichelleHett'};
     client.get('statuses/user_timeline', function(error, tweets, response) {
         if(error) throw error;
 
-        //Loop through the number of tweets that were returned to get the number of tweets returned.
-        //If the number of tweets exceeds 20, make it 20.
-        //Then loop through the length of tweets and return the tweets date and text.
         tweetsLength = 0;
 
         for(var i=0; i<tweets.length; i++){
@@ -68,7 +63,6 @@ function fetchTwitter(){
 }
 
 function upperCase (string){
-    //Capitalize first letter of each part of song name
     return string.toUpperCase();
 }
 function titleCase(string){
@@ -79,8 +73,6 @@ function titleCase(string){
 function fetchSpotify(song){
     var songName;
 
-    //If a song WAS chosen, make it title case so spotify can find it in its database
-    //If a song was not typed it, default to the song The Sign
     if (song != null){
         songName = titleCase(song);
     }
@@ -93,7 +85,7 @@ function fetchSpotify(song){
     appendFile("Searching for: " + songName);
     appendFile("---------------------------------");
 
-    //Get data from spotify API based on the query term (song name) typed in by the user
+    
     spotify.search({ type: 'track', query: songName}, function(err, data) {
         if ( err ) {
             console.log('Error occurred: ' + err);
@@ -132,16 +124,14 @@ function fetchSpotify(song){
 }
 
 function fetchOMDB(movieName){
-    //If a movie was not typed it, default to the movie Mr. Nobody
     if (artName == null){
-        movieName = "Mr. Nobody";
+        movieName = "Jaws";
     }
 
-    var requestURL = "http://www.omdbapi.com/?t=" + movieName + "&tomatoes=true&y=&plot=short&r=json";
+    var requestURL = "http://www.omdbapi.com/?t=" + movieName + "&tomatoes=true&y=&plot=short&r=json&apiKey=40e9cece";
 
     request(requestURL, function (error, response, data){
 
-        //200 response means that the page has been found and a response was received.
         if (!error && response.statusCode == 200){
             console.log("Everything working fine.");
         }
@@ -170,17 +160,10 @@ function fetchOMDB(movieName){
 }
 
 function fetchRandom(){
-    //LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
-    //Runs `spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+    
     fs.readFile("random.txt", 'utf8', function(err, data){
-
-        // console.log(data);
-
-        //Creating an array from a string with split()
-        //Every comma, push the element into the array
+   
         var dataArr = data.split(',');
-
-        // console.log(dataArr);
 
         var randomUserCommand = dataArr[0];
         var randomArtName = dataArr[1];
@@ -188,7 +171,6 @@ function fetchRandom(){
         console.log("You requested to " + "<" + randomUserCommand + "> with " + randomArtName);
         appendFile("You requested to " + "<" + randomUserCommand + "> with " + randomArtName);
 
-        //Remove the quotes before making a request
         randomArtName = randomArtName.replace(/^"(.*)"$/, '$1');
 
         doNext(randomUserCommand, randomArtName);
@@ -197,10 +179,9 @@ function fetchRandom(){
 
 function appendFile(dataToAppend){
 
-    //Output all that happens into a log.txt file
+    
     fs.appendFile("log.txt", dataToAppend , function(err){
 
-        //If an error happens while trying to write to the file
         if (err){
             return console.log(err);
         }
