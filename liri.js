@@ -125,7 +125,7 @@ function fetchSpotify(song){
 
 function fetchOMDB(movieName){
     if (artName == null){
-        movieName = "Jaws";
+        movieName = "Mr. Nobody";
     }
 
     var requestURL = "http://www.omdbapi.com/?t=" + movieName + "&tomatoes=true&y=&plot=short&r=json&apiKey=40e9cece";
