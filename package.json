@@ -1,28 +1,33 @@
 {
   "name": "liri",
   "version": "1.0.0",
-  "bin": {
-    "liri": "./liri.js"
-  },
-  "description": "LIRI is like SIRI.  It is a command line NodeJS script that takes in parameters and outputs data.",
+  "description": "command line node app to make api calls and retrieve information about music, movies and twitter",
   "main": "liri.js",
   "dependencies": {
-    "request": "^2.71.0",
-    "twitter": "^1.2.5",
-    "spotify": "^0.3.0"
+    "request": "^2.79.0",
+    "spotify": "^0.3.0",
+    "twitter": "^1.4.0"
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node liri do-what-it-says"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RyanSy/LIRI"
+    "url": "git+https://github.com/MichelleHettinger/Node-and-API.git"
   },
-  "author": "Ryan Sy",
+  "keywords": [
+    "CLI",
+    "node.js",
+    "api",
+    "spotify",
+    "twitter",
+    "omdb"
+  ],
+  "author": "Michelle Hettinger",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/RyanSy/LIRI/issues"
+    "url": "https://github.com/MichelleHettinger/Node-and-API/issues"
   },
-  "homepage": "https://github.com/RyanSy/LIRI#readme"
+  "homepage": "https://github.com/MichelleHettinger/Node-and-API#readme"
 }

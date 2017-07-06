@@ -1,6 +1,6 @@
 var fs = require("fs");                         //NPM package for reading and writing files
 
-var keys = require("./keys.js");                //Twitter keys and access tokens
+var keys = require("./apiKeys.js");                //Twitter keys and access tokens
 var Twitter = require("twitter");               //NPM package for twitter
 var client = new Twitter(keys.twitterKeys);     //New instance of a twitter client
 
