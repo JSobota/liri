@@ -38,7 +38,7 @@ function doNext(uC, aN){
 function fetchTwitter(){
     var tweetsLength;
 
-    var params = {screen_name: 'MichelleHett'};
+    var params = {screen_name: 'BodaKuhn0227'};
     client.get('statuses/user_timeline', function(error, tweets, response) {
         if(error) throw error;
 
