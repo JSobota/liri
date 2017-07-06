@@ -1,114 +1,208 @@
-#!/usr/bin/env node
-var action = process.argv[2];
-var value = process.argv[3];
-var Twitter = require('twitter');
-var keys = require('../LIRI-apiKeys/keys');
-var client = new Twitter(keys.twitterKeys);
-var params = {
-    screen_name: 'BodaKuhn0227',
-    count: 20
-    }
-var request = require('request');
-var fs = require('fs');
+var fs = require("fs");                         //NPM package for reading and writing files
 
-switch (action) {
-    case 'mytweets':
-        myTweets();
-        break;
-    case 'spotify':
-        spotifyThis(value);
-        break;
-    case 'omdb':
-        omdbThis(value);
-        break;
-    case 'random':
-        random();
-        break;
+var keys = require("./keys.js");                //Twitter keys and access tokens
+var Twitter = require("twitter");               //NPM package for twitter
+var client = new Twitter(keys.twitterKeys);     //New instance of a twitter client
+
+var request = require("request");               //NPM package for making ajax-like calls
+
+var spotify = require("spotify");               //NPM package for spotify
+
+var userCommand = process.argv[2];
+var artName = process.argv[3];
+
+doNext(userCommand,artName);
+
+function doNext(uC, aN){
+    switch(uC){
+    case 'my-tweets':
+        fetchTwitter();
+    break;
+
+    case "spotify-this-song":
+        fetchSpotify(aN);
+    break;
+
+    case "movie-this":
+        fetchOMDB(aN);
+    break;
+
+    case "do-what-it-says":
+        fetchRandom();
+    break;
+
+    default:
+    break;
+    }
 }
 
-// my-tweets function
-function myTweets() {
-    client.get('statuses/user_timeline', params, function(error, tweets, response) {
-        if (!error && response.statusCode == 200) {
-            fs.appendFile('terminal.log', ('=============== LOG ENTRY BEGIN ===============\r\n' + Date() + '\r\n \r\nTERMINAL COMMANDS:\r\n$: ' + process.argv + '\r\n \r\nDATA OUTPUT:\r\n'), function(err) {
-                if (err) throw err;
-            });
-            console.log(' ');
-            console.log('Last 20 Tweets:')
-            for (i = 0; i < tweets.length; i++) {
-                var number = i + 1;
-                console.log(' ');
-                console.log([i + 1] + '. ' + tweets[i].text);
-                console.log('Created on: ' + tweets[i].created_at);
-                console.log(' ');
-                fs.appendFile('terminal.log', (number + '. Tweet: ' + tweets[i].text + '\r\nCreated at: ' + tweets[i].created_at + ' \r\n'), function(err) {
-                    if (err) throw err;
-                });
-            }
-            fs.appendFile('terminal.log', ('=============== LOG ENTRY END ===============\r\n \r\n'), function(err) {
-                if (err) throw err;
-            });
+function fetchTwitter(){
+    var tweetsLength;
+
+    //From twitter's NPM documentation, grab the most recent tweets
+    var params = {screen_name: 'MichelleHett'};
+    client.get('statuses/user_timeline', function(error, tweets, response) {
+        if(error) throw error;
+
+        //Loop through the number of tweets that were returned to get the number of tweets returned.
+        //If the number of tweets exceeds 20, make it 20.
+        //Then loop through the length of tweets and return the tweets date and text.
+        tweetsLength = 0;
+
+        for(var i=0; i<tweets.length; i++){
+            tweetsLength ++;
+        }
+        if (tweetsLength > 20){
+            tweetsLength = 20;
+        }
+        for (var i=0; i<tweetsLength; i++){
+            console.log("Tweet " + (i+1) + " created on: " + tweets[i].created_at);
+            console.log("Tweet " + (i+1) + " text: " + tweets[i].text);
+            console.log("--------------------------------------------------------------");
+
+            appendFile("Tweet " + (i+1) + " created on: " + tweets[i].created_at);
+            appendFile("Tweet " + (i+1) + " text: " + tweets[i].text);
+            appendFile("--------------------------------------------------------------");
         }
     });
-} 
+}
 
-function spotifyThis(value) {
-    if (value == null) {
-        value = 'computer love';
+function upperCase (string){
+    //Capitalize first letter of each part of song name
+    return string.toUpperCase();
+}
+function titleCase(string){
+    var firstLetter = /(^|\s)[a-z]/g;
+    return string.replace(firstLetter, upperCase);
+}
+
+function fetchSpotify(song){
+    var songName;
+
+    //If a song WAS chosen, make it title case so spotify can find it in its database
+    //If a song was not typed it, default to the song The Sign
+    if (song != null){
+        songName = titleCase(song);
     }
-    request('https://api.spotify.com/v1/search?q=' + value + '&type=track', function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            jsonBody = JSON.parse(body);
-            console.log(' ');
-            console.log('Artist: ' + jsonBody.tracks.items[0].artists[0].name);
-            console.log('Song: ' + jsonBody.tracks.items[0].name);
-            console.log('Preview Link: ' + jsonBody.tracks.items[0].preview_url);
-            console.log('Album: ' + jsonBody.tracks.items[0].album.name);
-            console.log(' ');
-            fs.appendFile('terminal.log', ('=============== LOG ENTRY BEGIN ===============\r\n' + Date() +'\r\n \r\nTERMINAL COMMANDS:\r\n$: ' + process.argv + '\r\n \r\nDATA OUTPUT:\r\n' + 'Artist: ' + jsonBody.tracks.items[0].artists[0].name + '\r\nSong: ' + jsonBody.tracks.items[0].name + '\r\nPreview Link: ' + jsonBody.tracks.items[0].preview_url + '\r\nAlbum: ' + jsonBody.tracks.items[0].album.name + '\r\n=============== LOG ENTRY END ===============\r\n \r\n'), function(err) {
-                if (err) throw err;
-            });
-        }
-    });
-} 
-
-function omdbThis(value) {
-    if (value == null) {
-        value = 'wargames';
+    else {
+        songName = "The Sign";
     }
-    request('http://www.omdbapi.com/?t=' + value + '&tomatoes=true&r=json', function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            jsonBody = JSON.parse(body);
-            console.log(' ');
-            console.log('Title: ' + jsonBody.Title);
-            console.log('Year: ' + jsonBody.Year);
-            console.log('IMDb Rating: ' + jsonBody.imdbRating);
-            console.log('Country: ' + jsonBody.Country);
-            console.log('Language: ' + jsonBody.Language);
-            console.log('Plot: ' + jsonBody.Plot);
-            console.log('Actors: ' + jsonBody.Actors);
-            console.log('Rotten Tomatoes Rating: ' + jsonBody.tomatoRating);
-            console.log('Rotten Tomatoes URL: ' + jsonBody.tomatoURL);
-            console.log(' ');
-            fs.appendFile('log.txt', ('=============== LOG ENTRY BEGIN ===============\r\n' + Date() + '\r\n \r\nTERMINAL COMMANDS: ' + process.argv + '\r\nDATA OUTPUT:\r\n' + 'Title: ' + jsonBody.Title + '\r\nYear: ' + jsonBody.Year + '\r\nIMDb Rating: ' + jsonBody.imdbRating + '\r\nCountry: ' + jsonBody.Country + '\r\nLanguage: ' + jsonBody.Language + '\r\nPlot: ' + jsonBody.Plot + '\r\nActors: ' + jsonBody.Actors + '\r\nRotten Tomatoes Rating: ' + jsonBody.tomatoRating + '\r\nRotten Tomatoes URL: ' + jsonBody.tomatoURL + '\r\n =============== LOG ENTRY END ===============\r\n \r\n'), function(err) {
-                if (err) throw err;
-            });
-        }
-    });
-} 
+    console.log("Searching for: " + songName);
+    console.log("------------------------");
 
-function random() {
-    fs.readFile('random.txt', 'utf8', function(error, data) {
-        if (error) {
-            console.log(error);
-        } else {
-            var dataArr = data.split(',');
-            if (dataArr[0] === 'spotify') {
-                spotifyThis(dataArr[1]);
-            }
-            if (dataArr[0] === 'omdb') {
-                omdbThis(dataArr[1]);
+    appendFile("Searching for: " + songName);
+    appendFile("---------------------------------");
+
+    //Get data from spotify API based on the query term (song name) typed in by the user
+    spotify.search({ type: 'track', query: songName}, function(err, data) {
+        if ( err ) {
+            console.log('Error occurred: ' + err);
+            return;
+        }
+
+        var matchedTracks = [];
+        var dataItems = data.tracks.items;
+
+        for (var i=0; i<20; i++){
+            if (data.tracks.items[i].name == songName){
+                matchedTracks.push(i);
             }
         }
+
+        console.log(matchedTracks.length + " tracks found that match your query.");
+        appendFile(matchedTracks.length + " tracks found that match your query.");
+
+        if (matchedTracks.length > 0){
+            console.log("Track: " + dataItems[matchedTracks[0]].name);  
+            console.log("Artist: " + dataItems[matchedTracks[0]].artists[0].name);
+            console.log("Album: " + dataItems[matchedTracks[0]].album.name);
+            console.log("Spotify link: " + dataItems[matchedTracks[0]].external_urls.spotify);
+
+            appendFile("Track: " + dataItems[matchedTracks[0]].name);
+            appendFile("Artist: " + dataItems[matchedTracks[0]].artists[0].name);
+            appendFile("Album: " + dataItems[matchedTracks[0]].album.name);
+            appendFile("Spotify link: " + dataItems[matchedTracks[0]].external_urls.spotify);
+        }
+        else if (matchedTracks.length == 0){
+            console.log("Sorry, but spotify does not contain that song in their database :(");
+            appendFile("Sorry, but spotify does not contain that song in their database :(");
+        }
+        
     });
-} 
+}
+
+function fetchOMDB(movieName){
+    //If a movie was not typed it, default to the movie Mr. Nobody
+    if (artName == null){
+        movieName = "Mr. Nobody";
+    }
+
+    var requestURL = "http://www.omdbapi.com/?t=" + movieName + "&tomatoes=true&y=&plot=short&r=json";
+
+    request(requestURL, function (error, response, data){
+
+        //200 response means that the page has been found and a response was received.
+        if (!error && response.statusCode == 200){
+            console.log("Everything working fine.");
+        }
+        console.log("---------------------------------------------");
+        console.log("The movie's title is: " + JSON.parse(data)["Title"]);
+        console.log("The movie's release year is: " + JSON.parse(data)["Year"]);        
+        console.log("The movie's rating is: " + JSON.parse(data)["imdbRating"]);
+        console.log("The movie's was produced in: " + JSON.parse(data)["Country"]);
+        console.log("The movie's language is: " + JSON.parse(data)["Language"]);
+        console.log("The movie's plot: " + JSON.parse(data)["Plot"]);
+        console.log("The movie's actors: " + JSON.parse(data)["Actors"]);
+        console.log("The movie's Rotten Tomatoes Rating: " + JSON.parse(data)["tomatoRating"]);
+        console.log("The movie's Rotten Tomatoes URL: " + JSON.parse(data)["tomatoURL"]);
+
+        appendFile("---------------------------------------------");
+        appendFile("The movie's title is: " + JSON.parse(data)["Title"]);
+        appendFile("The movie's release year is: " + JSON.parse(data)["Year"]);     
+        appendFile("The movie's rating is: " + JSON.parse(data)["imdbRating"]);
+        appendFile("The movie's was produced in: " + JSON.parse(data)["Country"]);
+        appendFile("The movie's language is: " + JSON.parse(data)["Language"]);
+        appendFile("The movie's plot: " + JSON.parse(data)["Plot"]);
+        appendFile("The movie's actors: " + JSON.parse(data)["Actors"]);
+        appendFile("The movie's Rotten Tomatoes Rating: " + JSON.parse(data)["tomatoRating"]);
+        appendFile("The movie's Rotten Tomatoes URL: " + JSON.parse(data)["tomatoURL"]);                                            
+    });
+}
+
+function fetchRandom(){
+    //LIRI will take the text inside of random.txt and then use it to call one of LIRI's commands.
+    //Runs `spotify-this-song` for "I Want it That Way," as follows the text in `random.txt`.
+    fs.readFile("random.txt", 'utf8', function(err, data){
+
+        // console.log(data);
+
+        //Creating an array from a string with split()
+        //Every comma, push the element into the array
+        var dataArr = data.split(',');
+
+        // console.log(dataArr);
+
+        var randomUserCommand = dataArr[0];
+        var randomArtName = dataArr[1];
+
+        console.log("You requested to " + "<" + randomUserCommand + "> with " + randomArtName);
+        appendFile("You requested to " + "<" + randomUserCommand + "> with " + randomArtName);
+
+        //Remove the quotes before making a request
+        randomArtName = randomArtName.replace(/^"(.*)"$/, '$1');
+
+        doNext(randomUserCommand, randomArtName);
+    });
+}
+
+function appendFile(dataToAppend){
+
+    //Output all that happens into a log.txt file
+    fs.appendFile("log.txt", dataToAppend , function(err){
+
+        //If an error happens while trying to write to the file
+        if (err){
+            return console.log(err);
+        }
+    });
+}
