@@ -6,19 +6,18 @@
 <h1>Setup</h1>
 <li> Clone the repository </li>
 
-1. Run npm install, and the following packages should be installed
-<li>Twitter</li>
-<li>Spotifyr</li>
-<li>Request</li>
-<p> The request npm is used to hit the OMDB API</p>
-<br>
+Instructions:
 
-2. Obtain your twitter API credentials (must have a twitter account and be logged in)
-<li>Step One: go to https://apps.twitter.com/app/new and fill out and submit form </li>
-<li>Step Two: go to Keys and Access Tokens to get your consumer key and consumer secret</li>
-<li>Step Three: click the button below on that page to create an access token and access token secretr</li>
+1) Clone or download git repository.
 
-3. Create a file named 
+2) Install Node.js with NPM ( https://nodejs.org/en/download/ ).
+
+3) In your terminal run the command ( npm install ).
+
+4) Get your twitter API Key ( https://twittercommunity.com/t/how-to-get-my-api-key/7033 ). Next fill out the fields in keys.js with your twitter keys.
+
+
+Now you can run the following commands:
 
 ( node liri sptofiy-this-song 'Your Desired Song' )
 
@@ -27,3 +26,4 @@
 ( node liri my-tweets )
 
 ( node liri do-what-it-says )
+
